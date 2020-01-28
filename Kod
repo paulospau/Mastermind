@@ -1,0 +1,499 @@
+#include <iostream>
+#include <random>
+#include <string>
+#include <windows.h>
+#include <conio.h>
+
+using namespace std;
+
+int tablica[4]{};
+
+string czyGrac;
+int decyzja{}, licznikPodejsc = 1;
+
+HANDLE hOut;
+
+bool czyBylaWylosowana(int liczba, int tab1[], int x);
+bool czyBiale(int wartosc, int tab3[]);
+
+int main()
+{
+
+	random_device kule;
+	mt19937 generator(kule());
+	uniform_int_distribution<int> distribution(1, 6);
+
+	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	int liczba{}, ilosc{};
+	int tablicaProb[1024]{};
+	string gotowosc;
+
+	SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	cout << "Witamy w grze Mastermind! \nZasady gry s" << (char)0xA5 << " nast" << (char)0xA9 << "puj" << (char)0xA5 << "ce:" << endl;
+	cout << "Program losuje 4 kule na dost" << (char)0xA9 << "pne 4 miejsca. Odpowiednio s" << (char)0xA5 << " to: \nczerwona (1), " << endl << (char)0xBE;
+	cout << (char)0xA2 << (char)0x88 << "ta (2), \nzielona (3), \nniebieska (4), \npomara" << (char)0xE4 << "czowa (5), \nfioletowa (6). " << endl;
+	cout << "Twoje zadanie b" << (char)0xA9 << "dzie nast" << (char)0xA9 << "puj" << (char)0xA5 << "ce: w ka" << (char)0xBE << "dej pr";
+	cout << (char)0xA2 << "bie musisz obstawi" << (char)0x86 << " odpowiednie kolory kul i ich po" << (char)0x88 << "o" << (char)0xBE << "enie.";
+	cout << endl;
+	cout << "Program po ka" << (char)0xBE << "dej Twojej pr" << (char)0xA2 << "bie poka" << (char)0xBE << "e Ci, kt" << (char)0xA2 
+	<< "ra pinezka jest odpowiednio \n   bia" << (char)0x88 << "a (dany kolor pinezki wyst" << (char)0xA9 << "puje w u" 
+	<< (char)0x88 << "o" << (char)0xBE << "eniu, ale w innym miejscu)\n   czarna (dany kolor pinezki jest w odpowiednim miejscu)\n   lub szara (dany kolor pinezki nie wyst" 
+	<< (char)0xA9 << "puje w u" << (char)0x88 << "o" << (char)0xBE << "eniu).";
+	cout << endl;
+
+	while (true)
+	{
+
+
+		cout << "Czy jeste" << (char)0x98 << " gotowy?! (T/N) ";
+		cin >> gotowosc;
+
+		if (gotowosc == "tak" || gotowosc == "TAK" || gotowosc == "Tak" || gotowosc == "tAk" || gotowosc == "taK" ||
+			gotowosc == "TAk" || gotowosc == "TaK" || gotowosc == "tAK" || gotowosc=="T" || gotowosc=="t")
+		{
+			cout << "W takim razie zaczynamy!" << endl;
+			break;
+		}
+
+		else if (gotowosc == "nie" || gotowosc == "NIE" || gotowosc == "Nie" || gotowosc == "nIe" || gotowosc == "niE" ||
+			gotowosc == "NIe" || gotowosc == "NiE" || gotowosc == "nIE" || gotowosc=="N" || gotowosc=="n")
+		{
+			cout << "We" << (char)0xAB << "kilka g" <<(char)0x88 << (char)0xA9 << "bokich wdech" << (char)0xA2
+				<< "w i wydech" << (char)0xA2 << "w, odpocznij i odpowiedz jeszcze raz!" << endl;
+		}
+		else
+		{
+			cout << "S"<<(char)0x88 << "ucham? Nie ma takiej odpowiedzi. Odpowiedz tak albo nie!" << endl;
+		}
+	}
+
+	Sleep(4000);
+	system("cls");
+
+	while (true)
+	{
+		cout << "(Ma" << (char)0x88 << "a " << (char)0x98 << "ci" << (char)0xA5 << "ga) \n1 - czerwony, \n2 - " << (char)0xBE
+			<< (char)0xA2 << (char)0x88
+			<< "ty, \n3 - zielony, \n4 - niebieski, \n5 - pomara" << (char)0xE4
+			<< "czowy, \n6 - fioletowy \n\nc - czarna pinezka - oznacza, " << (char)0xBE << "e jest u" << (char)0x88 << "o" << (char)0xBE << "ona prawidlowo, \nb - bia" << (char)0x88
+			<< "a pinezka - kolor pinezki wyst" << (char)0xA9 << "puje w u" << (char)0x88 << "o" << (char)0xBE << "eniu, ale w innym miejscu, \ns - szara kula - brak danego koloru w u" << (char)0x88 << "o" << (char)0xBE << "eniu." << endl << endl;
+
+	//cout << endl << "Oto wylosowane kule i ich miejsca: " << endl;
+
+
+	for (int j = 0; j < 4; j++)
+	{
+		while (true)
+		{
+			liczba = distribution(generator);
+			ilosc = j + 1;
+
+			if (czyBylaWylosowana(liczba, tablica, ilosc) == false)
+			{
+				tablica[j] = liczba;
+				//cout << tablica[j] << "          ";
+				break;
+			}
+		}
+
+
+	}
+	cout << endl;
+
+	cout << "Odgadnij u"<<(char)0x88 <<"o"<<(char)0xBE <<"enie pinezek miejscami i kolorami (ka"<<(char)0xBE 
+		<<"da cyfra osobno oraz potwierdzona enterem): " << endl;
+
+	int strzal[4]{};
+	int s;
+
+	string strzalDoSprawdzenia[4];
+	
+		for (int i = 0; i < 4; i++)
+		{
+			
+			while (true)
+			{
+				cin >> strzalDoSprawdzenia[i];
+
+
+				if (strzalDoSprawdzenia[i] == "1" || strzalDoSprawdzenia[i] == "2" || strzalDoSprawdzenia[i] == "3" 
+					|| strzalDoSprawdzenia[i] == "4"
+					|| strzalDoSprawdzenia[i] == "5" || strzalDoSprawdzenia[i] == "6")
+				{
+					if (strzalDoSprawdzenia[i] == "1")
+					{
+						strzal[i] = 1;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "2")
+					{
+						strzal[i] = 2;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "3")
+					{
+						strzal[i] = 3;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "4")
+					{
+						strzal[i] = 4;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "5")
+					{
+						strzal[i] = 5;
+						break;
+					}
+					else
+					{
+						strzal[i] = 6;
+						break;
+					}
+				}
+				else
+				{
+					cout << "Co"<<(char)0x98 <<" posz"<<(char)0x88 <<"o nie tak! Upewnij si"<<(char)0xA9 <<", "
+						<<(char)0xBE <<"e podajesz jedn"<<(char)0xA5 <<" cyfr"<<(char)0xA9 <<" z przedzia"
+						<<(char)0x88 <<"u od 1 do 6 i podaj t"<<(char)0xA9 << " pinezk" <<(char)0xA9 << " jeszcze raz: ";
+				}
+			}
+			for (int j = 0; j <= i; j++)
+			{
+				cout << "          ";
+			}
+		}
+
+	cout << endl << "Oto Tw"<<(char)0xA2 <<"j aktualny wynik (przy 1. pr"<<(char)0xA2 << "bie): " << endl;
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (strzal[i] == tablica[i])
+		{
+			cout << "c";
+			cout.width(10);
+		}
+
+		else
+		{
+			if (czyBiale(strzal[i], tablica) == true)
+			{
+				cout << "b";
+				cout.width(10);
+			}
+			else
+			{
+				cout << "s";
+				cout.width(10);
+			}
+		}
+	}
+
+	cout << endl;
+
+	if (strzal[0] == tablica[0] && strzal[1] == tablica[1] && strzal[2] == tablica[2] && strzal[3] == tablica[3])
+	{
+		SetConsoleTextAttribute(hOut, FOREGROUND_GREEN);
+		cout << "Wygra"<<(char)0x88 <<"e"<<(char)0x98 <<"!!! Gratulacje! Wygrana przy 1. pr"<<(char)0xA2 <<"bie!" << endl;
+		SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		cout << "Finalne u" << (char)0x88 << "o" << (char)0xBE << "enie kul wygl" << (char)0xA5 << "da tak:" << endl;
+
+		for (int i = 0; i < 4; i++)
+		{
+			switch (tablica[i])
+			{
+			case 1:
+				SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+				cout << "1";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			case 2:
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY);
+				cout << "2";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			case 3:
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN);
+				cout << "3";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			case 4:
+				SetConsoleTextAttribute(hOut, FOREGROUND_BLUE);
+				cout << "4";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			case 5:
+				SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_RED);
+				cout << "5";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			case 6:
+				SetConsoleTextAttribute(hOut, FOREGROUND_BLUE | FOREGROUND_RED);
+				cout << "6";
+				SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				break;
+			}
+
+
+			cout << "       ";
+
+
+		}
+		cout << endl;
+
+		while (true)
+		{
+			cout << "Czy chcesz zagra" << (char)0x86 << " jeszcze raz? (T/N) ";
+			cin >> czyGrac;
+
+			if (czyGrac == "tak" || czyGrac == "TAK" || czyGrac == "Tak" || czyGrac == "tAk" || czyGrac == "taK" ||
+				czyGrac == "TAk" || czyGrac == "TaK" || czyGrac == "tAK" || czyGrac == "t" || czyGrac == "T")
+			{
+				decyzja = 1;
+				cout << endl << "W takim razie zaczynamy ponownie!" << endl;
+
+				Sleep(4000);
+				system("cls");
+				break;
+			}
+
+			else if (czyGrac == "nie" || czyGrac == "NIE" || czyGrac == "Nie" || czyGrac == "nIe" || czyGrac == "niE" ||
+				czyGrac == "NIe" || czyGrac == "NiE" || czyGrac == "nIE" || czyGrac == "n" || czyGrac == "N")
+			{
+				decyzja = 2;
+				cout << endl << "Rozumiemy. Dzi" << (char)0xA9 << "ki za gr" << (char)0xA9 << "!" << endl;
+
+
+				break;
+			}
+			else
+			{
+				cout << endl << "S" << (char)0x88 << "ucham? Nie ma takiej odpowiedzi. Odpowiedz tak albo nie:" << endl;
+			}
+		}
+
+		if (decyzja == 2)
+		{
+			system("pause");
+			exit(EXIT_FAILURE);
+		}
+		if (decyzja == 1)
+		{
+			continue;
+		}
+
+	}
+
+	int licznik = 1;
+
+	while (true)
+	{
+		licznik++;
+		cout << endl << endl << "Podaj kolejna probe (jest to Twoja " << licznik << ". proba): " << endl;
+
+		for (int i = 0; i < 4; i++)
+		{
+
+			while (true)
+			{
+				cin >> strzalDoSprawdzenia[i];
+
+				if (strzalDoSprawdzenia[i] == "1" || strzalDoSprawdzenia[i] == "2" || strzalDoSprawdzenia[i] == "3" || strzalDoSprawdzenia[i] == "4"
+					|| strzalDoSprawdzenia[i] == "5" || strzalDoSprawdzenia[i] == "6")
+				{
+					if (strzalDoSprawdzenia[i] == "1")
+					{
+						strzal[i] = 1;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "2")
+					{
+						strzal[i] = 2;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "3")
+					{
+						strzal[i] = 3;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "4")
+					{
+						strzal[i] = 4;
+						break;
+					}
+					else if (strzalDoSprawdzenia[i] == "5")
+					{
+						strzal[i] = 5;
+						break;
+					}
+					else
+					{
+						strzal[i] = 6;
+						break;
+					}
+				}
+				else
+				{
+					cout << "Co" << (char)0x98 << " posz" << (char)0x88 << "o nie tak! Upewnij si" << (char)0xA9 << ", " << (char)0xBE << "e podajesz jedn" << (char)0xA5 << " cyfr" << (char)0xA9 << " z przedzia" << (char)0x88 << "u od 1 do 6 ;) ";
+				}
+			}
+			for (int j = 0; j <= i; j++)
+			{
+				cout << "          ";
+			}
+		}
+		cout << endl << "Oto tw"<<(char)0xA2 <<"j aktualny wynik: " << endl;
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (strzal[i] == tablica[i])
+			{
+				cout << "c";
+				cout.width(10);
+			}
+
+			else
+			{
+				if (czyBiale(strzal[i], tablica) == true)
+				{
+					cout << "b";
+					cout.width(10);
+				}
+				else
+				{
+					cout << "s";
+					cout.width(10);
+				}
+			}
+		}
+
+		if (strzal[0] == tablica[0] && strzal[1] == tablica[1] && strzal[2] == tablica[2] && strzal[3] == tablica[3])
+		{
+			SetConsoleTextAttribute(hOut, FOREGROUND_GREEN);
+			
+			cout << endl << "Brawo! Wygrywasz w " << licznik << ". pr"<<(char)0xA2 <<"bie! Gratulacje!" << endl;
+
+			SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+			
+
+			cout << "Finalne u" << (char)0x88 << "o" << (char)0xBE << "enie kul wygl" << (char)0xA5 << "da tak:" << endl;
+
+			for (int i = 0; i < 4; i++)
+			{
+				switch (tablica[i])
+				{
+				case 1:
+					SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+					cout << "1";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				case 2:
+					SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY);
+					cout << "2";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				case 3:
+					SetConsoleTextAttribute(hOut, FOREGROUND_GREEN);
+					cout << "3";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				case 4:
+					SetConsoleTextAttribute(hOut, FOREGROUND_BLUE);
+					cout << "4";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				case 5:
+					SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_RED);
+					cout << "5";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				case 6:
+					SetConsoleTextAttribute(hOut, FOREGROUND_BLUE | FOREGROUND_RED);
+					cout << "6";
+					SetConsoleTextAttribute(hOut, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+					break;
+				}
+
+				cout << "       ";
+
+
+			}
+			cout << endl;
+
+			break;
+		}
+	}
+	while (true)
+	{
+		cout << "Czy chcesz zagra" << (char)0x86 << " jeszcze raz? (T/N) ";
+		cin >> czyGrac;
+
+		if (czyGrac == "tak" || czyGrac == "TAK" || czyGrac == "Tak" || czyGrac == "tAk" || czyGrac == "taK" ||
+			czyGrac == "TAk" || czyGrac == "TaK" || czyGrac == "tAK" || czyGrac=="t" || czyGrac=="T")
+		{
+			decyzja = 1;
+			cout << endl << "W takim razie zaczynamy ponownie!" << endl;
+
+			Sleep(4000);
+			system("cls");
+			break;
+		}
+
+		else if (czyGrac == "nie" || czyGrac == "NIE" || czyGrac == "Nie" || czyGrac == "nIe" || czyGrac == "niE" ||
+			czyGrac == "NIe" || czyGrac == "NiE" || czyGrac == "nIE" || czyGrac == "n" || czyGrac == "N")
+		{
+			decyzja = 2;
+			cout << endl << "Rozumiemy. Dzi" << (char)0xA9 << "ki za gr" << (char)0xA9 << "!" << endl;
+
+
+				break;
+		}
+		else
+		{
+			cout << endl << "S" << (char)0x88 << "ucham? Nie ma takiej odpowiedzi. Odpowiedz tak albo nie:" << endl;
+		}
+	}
+
+	if (decyzja == 2)
+	{
+		break;
+	}
+	
+}
+	system("pause");
+	return 0;
+}
+
+bool czyBylaWylosowana(int liczba, int tab1[], int x)
+{
+		if (x <= 0)
+		return false;
+
+	int k{};
+
+	do
+	{
+		if (tab1[k] == liczba)
+			return true;
+
+		k++;
+	} while (k < x);
+
+	return false;
+
+}
+
+bool czyBiale(int wartosc, int tab3[])
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (wartosc == tab3[i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
